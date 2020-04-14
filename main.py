@@ -7,6 +7,10 @@ from google.appengine.ext import blobstore
 from google.appengine.ext.webapp import blobstore_handlers
 from datetime import datetime
 import uuid
+from urlparse import urlparse, parse_qs
+from google.appengine.ext.webapp import blobstore_handlers
+from google.appengine.api.images import get_serving_url
+
 
 JINJA_ENVIRONMENT = jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname(__file__)+"/"))
 
@@ -15,14 +19,13 @@ class Users(ndb.Model):
   Users_Emailaddress = ndb.StringProperty()
   Users_Followers=ndb.StringProperty(repeated=True)
   Users_Following=ndb.StringProperty(repeated=True)
-  Users_Posts = ndb.BlobKeyProperty(repeated=True)
 
 #Posts Model Class
 class Post(ndb.Model):
   Post_Uid=ndb.StringProperty()
   Post_Caption=ndb.StringProperty()
   Post_Imgfilename=ndb.StringProperty()
-  Post_Blob=ndb.BlobKeyProperty()
+  Post_Blob=ndb.StringProperty()
   Post_timestamp=ndb.StringProperty()
   Post_owner=ndb.StringProperty()
 
@@ -79,6 +82,10 @@ class LoginPage(webapp2.RequestHandler):
             url_string = 'login'
             template = JINJA_ENVIRONMENT.get_template('Login.html')
         upload_url = blobstore.create_upload_url('/UploadHandler')
+      #  img=get_serving_url('hPZlWG4cAK5HbH2NUJ1p8w==')
+      #  print('serving url')
+       # print(img)
+
 
 
 
@@ -90,7 +97,8 @@ class LoginPage(webapp2.RequestHandler):
             'user' : user,
             'welcome' : welcome,
             'myuser' : myuser,
-            'upload_url':upload_url
+            'upload_url':upload_url,
+            #'img':img
 
 
         }
@@ -98,14 +106,46 @@ class LoginPage(webapp2.RequestHandler):
           template_values = {
             'url' : url,
             'url_string' : url_string,
-            'user' : user,
+            'user' : user.email(),
             'welcome' : welcome,
             'myuser' : myuser,
-            'upload_url':upload_url
+            'upload_url':upload_url,
+             #           'img':img
+
 
         }
         self.response.write(template.render(template_values))
 
+class Profile(webapp2.RequestHandler):
+    def get(self):
+        if self.request.get('ViewProfile'):
+            email=urlparse( self.request.get('email'))
+            email=email.path
+            profiledata=ndb.Key(Users,email).get()
+            role=None
+            if profiledata!=None:
+                followersct=len(profiledata.Users_Followers)
+                followingct=len(profiledata.Users_Following)
+                posts=Post.query()
+                posts=posts.filter(Post.Post_owner==email).fetch()
+
+            if users.get_current_user().email()==email:
+                role='owner'
+            else:
+                role='visitor'    
+
+
+
+            template = JINJA_ENVIRONMENT.get_template('Profile.html')
+            template_values = {
+                'followers' : followersct,
+                'following' : followingct,
+                'posts':posts,
+                'role':role
+
+
+            }
+            self.response.write(template.render(template_values))
 
 
 class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
@@ -113,18 +153,8 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     	print('Ghena')
 
     	upload = self.get_uploads()[0]
-    	userposts=ndb.Key(Users,users.get_current_user().email()).get()
-    	result=[]
-    	if userposts.Users_Posts !=None:
-    		result=userposts.Users_Posts
-    		result.append(upload.key())
-    		userposts.Users_Posts=result
-    		userposts.put()
-    	else:	
-    		result.append(upload.key())
-    		userposts.Users_Posts=result
-    		userposts.put()
-        
+    	
+    	
         now = datetime.now()
  
 
@@ -133,7 +163,8 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         newpost= Post(id= str(uuid.uuid4().hex))
         newpost.Post_Caption=self.request.get('caption')
         newpost.Post_Imgfilename='blah'
-        newpost.Post_Blob=upload.key()
+        newpost.Post_Blob=get_serving_url(upload.key())
+
         newpost.Post_timestamp=dt_string
         newpost.Post_owner=users.get_current_user().email()
 
@@ -141,5 +172,5 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         self.redirect('/')
 
 app = webapp2.WSGIApplication([
-    ('/', LoginPage),('/UploadHandler',UploadHandler)
+    ('/', LoginPage),('/UploadHandler',UploadHandler),('/Profile',Profile)
 ], debug=True)

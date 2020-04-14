@@ -108,7 +108,10 @@ li{
         <li class="active"><a href="/">Home</a></li>
         
       </ul>
+
       <ul class="nav navbar-nav navbar-right">
+        <li><a href="/Profile?ViewProfile=True&email={{user}}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
+
         <li><a href="{{ url }}"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
       </ul>
     </div>
@@ -117,6 +120,8 @@ li{
 <marquee behavior="scroll" direction="left">Welcome {{user}}</marquee></br>
 
 <div class="container">
+  <img src="{{img}}" width="100%">
+
 <form action="{{ upload_url }}" method="post" enctype="multipart/form-data">
     <input type="text" name="caption" id="caption" placeholder="Enter Your caption here" required>
     <div>
