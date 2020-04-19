@@ -68,7 +68,7 @@ table {
 td {
   height: 50px;
   vertical-align: bottom;
-  text-align: center; 
+  text-align: center;
     vertical-align: middle;
 }
 th{
@@ -82,15 +82,15 @@ text-align:center;
       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
-        <span class="icon-bar"></span>                        
+        <span class="icon-bar"></span>
       </button>
       <a class="navbar-brand" href="#">IG</a>
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
-      
+
        <ul class="nav navbar-nav">
         <li ><a href="/">Home</a></li>
-        
+
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li><a href="{{ url }}"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
@@ -101,11 +101,12 @@ text-align:center;
 
             <div class="container">
 
-      <h1 style="text-align: center;background-color: BLACK; color:WHITE;" >Profile</h1></br> 
+      <h1 style="text-align: center;background-color: BLACK; color:WHITE;" >
+</h1></br>
       <center>
     <a>Followers: {{followers-1}} &nbsp;&nbsp; Following: {{following-1}}</a></br>
-    {% if role=="visitor" %}
-    <button>Follow</button>
+    {% if role=="visitor" and  email not in profiledata %}
+    <button onclick="location.href='/FollowUser?followingemail={{email}}'">Follow</button>
     {% endif %}
     </center>
 <ul class="list-group">
@@ -113,7 +114,7 @@ text-align:center;
    <b ><font size=+2 ><li class="list-group-item" >
     <center>
        <img src="{{i.Post_Blob}}" width="70%"></br>
-       <a>{{i.Post_Caption}}</a> 
+       <a>{{i.Post_Caption}}</a>
        </center>
         </li>
       </br>

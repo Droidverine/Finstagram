@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+
+
+input[type=text], select, textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  margin-top: 6px;
+  margin-bottom: 16px;
+  resize: vertical;
+}
+
+input[type=submit] {
+  background-color: #000000;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.8);
+
+}
+
+.container {
+  border-radius: 5px;
+  background-color: #f2f2f2;
+   overflow: hidden;
+    position: relative;
+margin: auto;
+  padding: 12px 20px;
+    height: 60vh;
+    width: 50%;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.8);
+
+}
+li{
+  display: inline-block;
+  cursor: pointer;
+}
+.form-inline {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+}
+
+.form-inline label {
+  margin: 5px 10px 5px 0;
+}
+
+.form-inline input {
+  vertical-align: middle;
+  margin: 5px 10px 5px 0;
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+}
+
+.form-inline button {
+  padding: 10px 20px;
+  background-color: dodgerblue;
+  border: 1px solid #ddd;
+  color: white;
+  cursor: pointer;
+}
+
+.form-inline button:hover {
+  background-color: royalblue;
+}
+
+@media (max-width: 800px) {
+  .form-inline input {
+    margin: 10px 0;
+  }
+
+  .form-inline {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+</style>
+</head>
+<body>
+
+
+
+<div class="container">
+  <img src="{{img}}" width="100%">
+
+<form action="/addusername" method="get" >
+    <input type="text" name="username" id="username" placeholder="Enter user name here" required>
+<input type="submit"/>
+  </form>
+</br>
+</div>
+
+</script>
+</body>
+
+</html>

@@ -38,6 +38,7 @@ input[type=submit] {
     position: relative;
 margin: auto;
   padding: 12px 20px;
+    height: 60vh;
     width: 50%;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.8);
 
@@ -114,10 +115,7 @@ li{
 
         <li><a href="{{ url }}"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
       </ul>
-      <form action="/SearchProfile" class="form-inline">
-        <input class="form-control mr-sm-2" type="text" name="email" placeholder="Search" aria-label="Search">
-        <input class="form-control mr-sm-2" type="hidden" name="SearchView" value="True">
-
+      <form action="/SearchProfile" class="form-inline"><input class="form-control mr-sm-2" type="text" name="Search" placeholder="Search" aria-label="Search">
         <button class="btn btn-light mr-sm-9" type="submit">Search</button>
 </form>
     </div>
@@ -125,56 +123,15 @@ li{
   </div>
 
 </nav>
-<marquee behavior="scroll" direction="left">Welcome {{user}}</marquee></br>
 
 <div class="container">
-  <img src="{{img}}" width="100%">
-
-<form action="{{ upload_url }}" method="post" enctype="multipart/form-data">
-    <input type="text" name="caption" id="caption" placeholder="Enter Your caption here" required>
-    <div>
-Upload File: <input  name="image" type="file" id="fileName" accept=".png, .jpg, .jpeg" onchange="CheckFileName()"/>
- <br>
- <div>
-<input type="submit"/>
-  </form>
-
-  </div>
-</br>
-
-
-<div align="left">
-
-
+ <ul>
+  {% for i in result %}
+   <li><a href="/Profile?ViewProfile=True&email={{i.Users_Emailaddress}}">{{i.Users_Emailaddress}}</a></li>
+  {% endfor %}
+ </ul>
 </div>
 
-</div>
-<ul class="list-group">
-  {% for i in finalposts %}
-   <b ><font size=+2 ><li class="list-group-item" >
-    <center>
-       <img src="{{i.Post_Blob}}" width="70%"></br>
-       <a>{{i.Post_Caption}}</a></br>
-       <a>post by {{i.Post_owner}}</a>
-       </center>
-        </li>
-      </br>
-     {% endfor %}
-   </ul>
-<script>
-function CheckFileName() {
-    var fileName = document.getElementById("fileName").value;
-        var idxDot = fileName.lastIndexOf(".") + 1;
-        var extFile = fileName.substr(idxDot, fileName.length).toLowerCase();
-        if (extFile=="jpg" || extFile=="jpeg" || extFile=="png"){
-            //TO DO
-        }else{
-            alert("Only jpg/jpeg and png files are allowed!");
-           var element = document.getElementById("fileName");
-          element.innerHTML = " ";
-        }
-}
-</script>
 </script>
 </body>
 
