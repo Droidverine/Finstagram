@@ -1,13 +1,13 @@
+<!DOCTYPE html>
 <html>
+<head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-  <style>
+<style>
 body {font-family: Arial, Helvetica, sans-serif;}
-* {
-  width: 50%
-  box-sizing: border-box;}
+
 
 input[type=text], select, textarea {
   width: 100%;
@@ -30,53 +30,69 @@ input[type=submit] {
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.8);
 
 }
-button{
-    background-color: #000000;
-  color: white;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.8);
-}
-li{
-  cursor: pointer;
-  box-shadow: 0 2px 6px 0 rgba(0,0,0,0.8);
-
-}
 
 .container {
- border-radius: 5px;
+  border-radius: 5px;
   background-color: #f2f2f2;
-  margin: auto;
+   overflow: hidden;
+    position: relative;
+margin: auto;
   padding: 12px 20px;
-  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.8);
-
-  width: 50%;
-}
-table, td, th {
-  border: 1px solid black;
-}
-
-table {
-  border-collapse: collapse;
-  width: 100%;
+    height: 60vh;
+    width: 50%;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.8);
 
 }
-
-td {
-  height: 50px;
-  vertical-align: bottom;
-  text-align: center;
-    vertical-align: middle;
+li{
+  display: inline-block;
+  cursor: pointer;
 }
-th{
-text-align:center;
+.form-inline {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+}
+
+.form-inline label {
+  margin: 5px 10px 5px 0;
+}
+
+.form-inline input {
+  vertical-align: middle;
+  margin: 5px 10px 5px 0;
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+}
+
+.form-inline button {
+  padding: 10px 20px;
+  background-color: dodgerblue;
+  border: 1px solid #ddd;
+  color: white;
+  cursor: pointer;
+}
+
+.form-inline button:hover {
+  background-color: royalblue;
+}
+
+@media (max-width: 800px) {
+  .form-inline input {
+    margin: 10px 0;
+  }
+
+  .form-inline {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 </style>
+</head>
 <body>
-  <nav class="navbar navbar-inverse">
+
+
+<nav class="navbar navbar-inverse">
   <div class="container-fluid">
     <div class="navbar-header">
       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
@@ -89,39 +105,34 @@ text-align:center;
     <div class="collapse navbar-collapse" id="myNavbar">
 
        <ul class="nav navbar-nav">
-        <li ><a href="/">Home</a></li>
+        <li class="active"><a href="/">Home</a></li>
 
       </ul>
+
+
       <ul class="nav navbar-nav navbar-right">
+        <li><a href="/Profile?ViewProfile=True&email={{user}}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
+
         <li><a href="{{ url }}"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
       </ul>
+      <form action="/SearchProfile" class="form-inline"><input class="form-control mr-sm-2" type="text" name="Search" placeholder="Search" aria-label="Search">
+        <button class="btn btn-light mr-sm-9" type="submit">Search</button>
+</form>
     </div>
+
   </div>
+
 </nav>
 
-            <div class="container">
-
-      <h1 style="text-align: center;background-color: BLACK; color:WHITE;" >
-</h1></br>
-      <center>
-    <a href="/FollowingFollowerslist?Followers=True&email={{email}}">Followers: {{followers-1}}</a> &nbsp;&nbsp;
-    <a href="/FollowingFollowerslist?Followings=True&email={{email}}">Following: {{following-1}}</a></br>
-    {% if role=="visitor" and email not in profiledata %}
-    <button onclick="location.href='/FollowUser?followingemail={{email}}'">Follow</button>
-    {% endif %}
-    </center>
-<ul class="list-group">
-  {% for i in posts %}
-   <b ><font size=+2 ><li class="list-group-item" >
-    <center>
-       <img src="{{i.Post_Blob}}" width="70%"></br>
-       <a>{{i.Post_Caption}}</a>
-       </center>
-        </li>
-      </br>
-     {% endfor %}
+<div class="container">
+ <ul>
+  {% for i in result %}
+   <li><a href="/Profile?ViewProfile=True&email={{i}}">{{i}}</a></li></br>
+  {% endfor %}
+ </ul>
 </div>
 
-
+</script>
 </body>
+
 </html>

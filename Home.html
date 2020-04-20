@@ -156,8 +156,16 @@ Upload File: <input  name="image" type="file" id="fileName" accept=".png, .jpg, 
        <img src="{{i.Post_Blob}}" width="70%"></br>
        <a>{{i.Post_Caption}}</a></br>
        <a>post by {{i.Post_owner}}</a>
-       </center>
+       <div><button onclick="location.href='/Comment?CommentView=True&postid={{i.Post_Uid}}'">comment</button></div>
+       {% for j in i.Post_comments|reverse %}
+       {% if j.Comment_owner!=None or j.Comment_content!='None'  %}
+       <li><a> asa sds{{j.Comment_owner}}- {{j.Comment_content}}</a></li>
+     </br>
+       {% endif %}
+       {% endfor %}
         </li>
+      </center>
+
       </br>
      {% endfor %}
    </ul>

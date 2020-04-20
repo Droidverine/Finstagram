@@ -38,7 +38,6 @@ input[type=submit] {
     position: relative;
 margin: auto;
   padding: 12px 20px;
-    height: 60vh;
     width: 50%;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.8);
 
@@ -47,7 +46,7 @@ li{
   display: inline-block;
   cursor: pointer;
 }
-.form-inline {  
+.form-inline {
   display: flex;
   flex-flow: row wrap;
   align-items: center;
@@ -81,7 +80,7 @@ li{
   .form-inline input {
     margin: 10px 0;
   }
-  
+
   .form-inline {
     flex-direction: column;
     align-items: stretch;
@@ -98,15 +97,15 @@ li{
       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
-        <span class="icon-bar"></span>                        
+        <span class="icon-bar"></span>
       </button>
       <a class="navbar-brand" href="#">IG</a>
     </div>
     <div class="collapse navbar-collapse" id="myNavbar">
-      
+
        <ul class="nav navbar-nav">
         <li class="active"><a href="/">Home</a></li>
-        
+
       </ul>
 
 
@@ -115,7 +114,10 @@ li{
 
         <li><a href="{{ url }}"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
       </ul>
-      <form action="/SearchProfile" class="form-inline"><input class="form-control mr-sm-2" type="text" name="Search" placeholder="Search" aria-label="Search">
+      <form action="/SearchProfile" class="form-inline">
+        <input class="form-control mr-sm-2" type="text" name="email" placeholder="Search" aria-label="Search">
+        <input class="form-control mr-sm-2" type="hidden" name="SearchView" value="True">
+
         <button class="btn btn-light mr-sm-9" type="submit">Search</button>
 </form>
     </div>
@@ -126,22 +128,28 @@ li{
 <marquee behavior="scroll" direction="left">Welcome {{user}}</marquee></br>
 
 <div class="container">
-  <img src="{{img}}" width="100%">
 
-<form action="{{ upload_url }}" method="post" enctype="multipart/form-data">
-    <input type="text" name="caption" id="caption" placeholder="Enter Your caption here" required>
+<form  method="get" action="\Comment" >
+    <input type="text" name="comment" id="comment" placeholder="Enter Your comment here." required>
+    <input type="hidden" name="postid" id="postid" value="{{postid}}">
+
     <div>
-Upload File: <input  name="image" type="file" id="fileName" accept=".png, .jpg, .jpeg" onchange="CheckFileName()"/>
  <br>
  <div>
-<input type="submit"/>   
+   <input type="submit" name="Submit"/>
   </form>
+
+  </div>
 </br>
+
+
 <div align="left">
 
 
 </div>
+
 </div>
+
 <script>
 function CheckFileName() {
     var fileName = document.getElementById("fileName").value;
@@ -153,7 +161,7 @@ function CheckFileName() {
             alert("Only jpg/jpeg and png files are allowed!");
            var element = document.getElementById("fileName");
           element.innerHTML = " ";
-        } 
+        }
 }
 </script>
 </script>

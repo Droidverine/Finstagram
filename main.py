@@ -10,6 +10,7 @@ import uuid
 from urlparse import urlparse, parse_qs
 from google.appengine.ext.webapp import blobstore_handlers
 from google.appengine.api.images import get_serving_url
+import time
 
 
 JINJA_ENVIRONMENT = jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname(__file__)+"/"))
@@ -21,6 +22,14 @@ class Users(ndb.Model):
   Users_Followers=ndb.StringProperty(repeated=True)
   Users_Following=ndb.StringProperty(repeated=True)
 
+
+
+class Comments(ndb.Model):
+    Comment_uid=ndb.StringProperty()
+    Comment_content=ndb.StringProperty()
+    Comment_owner=ndb.StringProperty()
+    comment_postuid=ndb.StringProperty()
+
 #Posts Model Class
 class Post(ndb.Model):
   Post_Uid=ndb.StringProperty()
@@ -29,8 +38,7 @@ class Post(ndb.Model):
   Post_Blob=ndb.StringProperty()
   Post_timestamp=ndb.StringProperty()
   Post_owner=ndb.StringProperty()
-
-
+  Post_comments = ndb.StructuredProperty(Comments, repeated=True)
 #Landing page does the authentication
 class LoginPage(webapp2.RequestHandler):
     def get(self):
@@ -40,6 +48,8 @@ class LoginPage(webapp2.RequestHandler):
         myuser = None
         result= None
         finalposts=[]
+        commentslist=[]
+
 
         user = users.get_current_user()
 
@@ -63,10 +73,19 @@ class LoginPage(webapp2.RequestHandler):
                             finalposts.append(k)
 
                 finalposts=finalposts[0:50]
+                for i in finalposts:
+                    cm=Comments().query().filter(Comments.comment_postuid==i.Post_Uid).fetch()
+                    if len(commentslist)<1:
+                        commentslist=cm
+                    else:
+                        commentslist.append(cm)
+
+
 
             result=[]
             #query only to get users
-
+            print('comment')
+            print(commentslist)
             q=Users.query()
             us =q.fetch()
             usersinsystem=[]
@@ -113,7 +132,8 @@ class LoginPage(webapp2.RequestHandler):
             'welcome' : welcome,
             'myuser' : myuser,
             'upload_url':upload_url,
-            'finalposts':finalposts
+            'finalposts':finalposts,
+            'comments':commentslist
             #'img':img
 
 
@@ -126,7 +146,9 @@ class LoginPage(webapp2.RequestHandler):
             'welcome' : welcome,
             'myuser' : myuser,
             'upload_url':upload_url,
-            'finalposts':finalposts
+            'finalposts':finalposts,
+            'comments':commentslist
+
              #           'img':img
 
 
@@ -190,6 +212,41 @@ class SearchProfile(webapp2.RequestHandler):
             }
             self.response.write(template.render(template_values))
 
+class FollowingFollowerslist(webapp2.RequestHandler):
+    def get(self):
+        if self.request.get('Followers'):
+            email=urlparse(self.request.get('email'))
+            followers=ndb.Key(Users,email.path).get()
+            result=[]
+            if(followers!=None and followers.Users_Followers!=None):
+                result=followers.Users_Followers
+            print('followers')
+            print(result)
+            template = JINJA_ENVIRONMENT.get_template('followersfollowings.html')
+            template_values = {
+                'result':result,
+                'email':self.request.get('email')
+
+
+            }
+            self.response.write(template.render(template_values))
+        if self.request.get('Followings'):
+            email=urlparse(self.request.get('email'))
+            followings=ndb.Key(Users,email.path).get()
+            result=[]
+            if(followings!=None and followings.Users_Followers!=None):
+                result=followings.Users_Following
+            print('followings')
+            print(result)
+            template = JINJA_ENVIRONMENT.get_template('followersfollowings.html')
+            template_values = {
+                'result':result,
+                'email':self.request.get('email')
+
+
+            }
+            self.response.write(template.render(template_values))
+
 class FollowUser(webapp2.RequestHandler):
     def get(self):
     #    followeremail=urlparse(self.request.get('followeremail'))
@@ -216,17 +273,44 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
 
 		# dd/mm/YY H:M:S
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
-        newpost= Post(id= str(uuid.uuid4().hex))
+        uidala=str(uuid.uuid4().hex)
+        newpost= Post(id=uidala )
         newpost.Post_Caption=self.request.get('caption')
         newpost.Post_Imgfilename='blah'
         newpost.Post_Blob=get_serving_url(upload.key())
+        newpost.Post_Uid=uidala
+        new_address = Comments(Comment_content='None',Comment_owner='None',comment_postuid='None')
+        newpost.Post_comments.append(new_address)
+
 
         newpost.Post_timestamp=dt_string
         newpost.Post_owner=users.get_current_user().email()
 
         newpost.put()
         self.redirect('/')
+class Comment(webapp2.RequestHandler):
+    def get(self):
+        if self.request.get('CommentView'):
+            template = JINJA_ENVIRONMENT.get_template('Addcomment.html')
+            template_values = {
+                'postid':self.request.get('postid'),
+                'email':self.request.get('email')
 
+
+            }
+            self.response.write(template.render(template_values))
+        if self.request.get('Submit'):
+            uidl=str(uuid.uuid4().hex)
+            kk=ndb.Key(Post,self.request.get('postid')).get()
+            print('aliya')
+            print(kk)
+            new_address = Comments(id=uidl,Comment_content=self.request.get('comment'),Comment_owner=users.get_current_user().email(),comment_postuid=self.request.get('postid'))
+            kk.Post_comments.append(new_address)
+
+            kk.put()
+
+            time.sleep(1)
+            self.redirect('/')
 app = webapp2.WSGIApplication([
-    ('/', LoginPage),('/UploadHandler',UploadHandler),('/FollowUser',FollowUser),('/Profile',Profile),('/SearchProfile',SearchProfile)
+    ('/', LoginPage),('/Comment',Comment),('/UploadHandler',UploadHandler),('/FollowingFollowerslist',FollowingFollowerslist),('/FollowUser',FollowUser),('/Profile',Profile),('/SearchProfile',SearchProfile)
 ], debug=True)
