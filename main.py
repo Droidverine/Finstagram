@@ -29,6 +29,7 @@ class Comments(ndb.Model):
     Comment_content=ndb.StringProperty()
     Comment_owner=ndb.StringProperty()
     comment_postuid=ndb.StringProperty()
+    comment_time=ndb.StringProperty()
 
 #Posts Model Class
 class Post(ndb.Model):
@@ -264,13 +265,8 @@ class FollowUser(webapp2.RequestHandler):
 class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def post(self):
     	print('Ghena')
-
     	upload = self.get_uploads()[0]
-
-
         now = datetime.now()
-
-
 		# dd/mm/YY H:M:S
         dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
         uidala=str(uuid.uuid4().hex)
@@ -288,6 +284,7 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
 
         newpost.put()
         self.redirect('/')
+
 class Comment(webapp2.RequestHandler):
     def get(self):
         if self.request.get('CommentView'):
@@ -304,13 +301,27 @@ class Comment(webapp2.RequestHandler):
             kk=ndb.Key(Post,self.request.get('postid')).get()
             print('aliya')
             print(kk)
-            new_address = Comments(id=uidl,Comment_content=self.request.get('comment'),Comment_owner=users.get_current_user().email(),comment_postuid=self.request.get('postid'))
+            new_address = Comments(id=uidl,comment_time=str(datetime.today().strftime('%Y-%m-%d %H:%M:%S')),Comment_content=self.request.get('comment'),Comment_owner=users.get_current_user().email(),comment_postuid=self.request.get('postid'))
             kk.Post_comments.append(new_address)
 
             kk.put()
 
             time.sleep(1)
             self.redirect('/')
+
+class ViewComments(webapp2.RequestHandler):
+    def get(self):
+        postuid=self.request.get('postuid')
+        template = JINJA_ENVIRONMENT.get_template('commentsview.html')
+
+        post=ndb.Key(Post,postuid).get()
+        comments=post.Post_comments
+        template_values = {
+            'comments':comments
+
+        }
+        self.response.write(template.render(template_values))
+
 app = webapp2.WSGIApplication([
-    ('/', LoginPage),('/Comment',Comment),('/UploadHandler',UploadHandler),('/FollowingFollowerslist',FollowingFollowerslist),('/FollowUser',FollowUser),('/Profile',Profile),('/SearchProfile',SearchProfile)
+    ('/', LoginPage),('/ViewComments',ViewComments),('/Comment',Comment),('/UploadHandler',UploadHandler),('/FollowingFollowerslist',FollowingFollowerslist),('/FollowUser',FollowUser),('/Profile',Profile),('/SearchProfile',SearchProfile)
 ], debug=True)

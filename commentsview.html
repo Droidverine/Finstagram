@@ -42,6 +42,19 @@ margin: auto;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.8);
 
 }
+
+.input_caption{
+
+    width: 100%;
+    height: 20px;
+    padding-right: 50px;
+}
+.input_captionButton{
+    margin-left: -50px;
+    height: 20px;
+    width: 50px;
+
+}
 li{
   display: inline-block;
   cursor: pointer;
@@ -129,71 +142,19 @@ li{
 <marquee behavior="scroll" direction="left">Welcome {{user}}</marquee></br>
 
 <div class="container">
-  <img src="{{img}}" width="100%">
+  <ul class="list-group">
+    {% for i in comments|reverse %}
+    {% if i.Comment_content != 'None'%}
+    <li class="list-group-item">{{i.Comment_owner}} {{i.Comment_content}} {{i.comment_time}}</li>
+    {% endif %}
+    {% endfor %}
+  </ul>
 
-<form action="{{ upload_url }}"  method="post" enctype="multipart/form-data">
-    <input type="text" name="caption" id="caption" placeholder="Enter Your caption here" required>
-Upload File: <input  name="image" type="file" id="fileName" accept=".png, .jpg, .jpeg" onchange="CheckFileName()"/>
- <br>
-<input type="submit"/>
-<br>
-
-
-  </form>
-
-</br>
-
-
-<ul class="list-group">
-  {% for i in finalposts %}
-   <b ><li class="list-group-item" >
-      <a>Post by: {{i.Post_owner}}</a></br>
-      <center>
-
-       <img src="{{i.Post_Blob}}" width="100%"></br>
-     </center>
-     <ul class="list-group">
-<div style=" border: 3px solid black;padding: 10px;">
-       <a style="color:BLACK;">Caption: {{i.Post_Caption}}</a></br>
-       <div><button onclick="location.href='/Comment?CommentView=True&postid={{i.Post_Uid}}'">comment</button></div>
-       <a>Comments:</a></br>
-       {% for j in i.Post_comments|reverse %}
-       {% if loop.index < 5 and j.Comment_owner!='None' %}
-
-       <li class="list-group-item"><a style="color:BLACK;text-size:14px;">{{j.Comment_owner}}: {{j.Comment_content}}</a>
-         <a style="float:right;">{{j.comment_time}}</a>
-       </li>
-       {% endif %}
-
-{% if loop.index==5 and j.Comment_content!='None'  %}
-<li class="list-group-item"><a href="/ViewComments?postuid={{i.Post_Uid}}">more.</a></li>
-{% endif %}
-
-       {% endfor %}
-        </li>
-      </ul>
-      </br>
-     {% endfor %}
-   </div>
  </div>
-</div>
 
 
-<script>
-function CheckFileName() {
-    var fileName = document.getElementById("fileName").value;
-        var idxDot = fileName.lastIndexOf(".") + 1;
-        var extFile = fileName.substr(idxDot, fileName.length).toLowerCase();
-        if (extFile=="jpg" || extFile=="jpeg" || extFile=="png"){
-            //TO DO
-        }else{
-            alert("Only jpg/jpeg and png files are allowed!");
-           var element = document.getElementById("fileName");
-          element.innerHTML = " ";
-        }
-}
-</script>
-</script>
+
+
 </body>
 
 </html>
