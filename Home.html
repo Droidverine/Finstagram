@@ -19,6 +19,14 @@ input[type=text], select, textarea {
   margin-bottom: 16px;
   resize: vertical;
 }
+div.a {
+  display: inline; /* the default for span */
+  width: 100px;
+  height: 100px;
+  padding: 5px;
+  border: 1px solid blue;
+  background-color: yellow;
+}
 
 input[type=submit] {
   background-color: #000000;
@@ -42,9 +50,15 @@ margin: auto;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.8);
 
 }
+
 li{
   display: inline-block;
   cursor: pointer;
+}
+.posts_li{
+  cursor: pointer;
+  box-shadow: 0 2px 6px 0 rgba(0,0,0,0.8);
+
 }
 .form-inline {
   display: flex;
@@ -114,8 +128,18 @@ li{
 
         <li><a href="{{ url }}"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
       </ul>
-      <form action="/SearchProfile" class="form-inline">
-        <input class="form-control mr-sm-2" type="text" name="email" placeholder="Search" aria-label="Search">
+      <form action="/Profile" class="form-inline">
+        <input type="hidden" name='ViewProfile' value="True">
+
+  <input class="form-control mr-sm-2" id="something" list="somethingelse" name="email" placeholder="Enter username to search" autocomplete="off" required>
+<datalist id="somethingelse" >
+  {% for i in usersinsystem %}
+
+  <option style="color:WHITE;" value="{{i}}"></option>
+
+  {% endfor %}
+
+</datalist>
         <input class="form-control mr-sm-2" type="hidden" name="SearchView" value="True">
 
         <button class="btn btn-light mr-sm-9" type="submit">Search</button>
@@ -126,73 +150,87 @@ li{
   </div>
 
 </nav>
-<marquee behavior="scroll" direction="left">Welcome {{user}}</marquee></br>
 
-<div class="container">
+<div class="container" style="   margin-top: -18px;">
+  <center>  <a style="color:Black;">Signed in as {{user}}</a></center>
+
   <img src="{{img}}" width="100%">
 
 <form action="{{ upload_url }}"  method="post" enctype="multipart/form-data">
-    <input type="text" name="caption" id="caption" placeholder="Enter Your caption here" required>
-Upload File: <input  name="image" type="file" id="fileName" accept=".png, .jpg, .jpeg" onchange="CheckFileName()"/>
- <br>
-<input type="submit"/>
-<br>
+    <textarea name="caption" id="caption" rows="4" cols="100" maxlength="200" minlengt="1" placeholder="Enter Your caption here" required></textarea>
 
-
+<table style="width:100%">
+  <tr>
+  <td><input  name="image" text="select picture"  type="file" id="fileName" accept=".png, .jpg, .jpeg" onchange="CheckFileName()"/>
+  </td>
+  <td style="float:right;"><input type="submit" name="uploadpic" id="uploadpic" value="Post"/></td>
+</tr>
+</table>
   </form>
+</div>
+<br>
+<div class="container">
+    <hr style="color:BLACK;">
 
-</br>
-
-
-<ul class="list-group">
+<div class="posts_li">
+<ul class="list-group" style=";box-shadow: 0 2px 6px 0 rgba(0,0,0,0.8);">
   {% for i in finalposts %}
-   <b ><li class="list-group-item" >
+   <b ><li class="list-group-item" style="box-shadow: 0 2px 6px 0 rgba(0,0,0,0.8);" >
       <a>Post by: {{i.Post_owner}}</a></br>
+      <a>Date: {{i.Post_timestamp }}</a></br>
       <center>
 
-       <img src="{{i.Post_Blob}}" width="100%"></br>
+       <img src="{{i.Post_Blob}}" width="100%" style="box-shadow: 0 2px 6px 0 rgba(0,0,0,0.8);" ></br>
      </center>
-     <ul class="list-group">
-<div style=" border: 3px solid black;padding: 10px;">
+     <ul class="list-group" style="cursor: pointer;box-shadow: 0 2px 6px 0 rgba(0,0,0,0.8);">
+       <div style=" border: 3px solid black;padding: 10px;">
        <a style="color:BLACK;">Caption: {{i.Post_Caption}}</a></br>
        <div><button onclick="location.href='/Comment?CommentView=True&postid={{i.Post_Uid}}'">comment</button></div>
        <a>Comments:</a></br>
        {% for j in i.Post_comments|reverse %}
-       {% if loop.index < 5 and j.Comment_owner!='None' %}
+       {% if loop.index < 6
+          and j.Comment_owner!='None' %}
 
        <li class="list-group-item"><a style="color:BLACK;text-size:14px;">{{j.Comment_owner}}: {{j.Comment_content}}</a>
          <a style="float:right;">{{j.comment_time}}</a>
        </li>
        {% endif %}
 
-{% if loop.index==5 and j.Comment_content!='None'  %}
+{% if loop.index==6 and j.Comment_content!='None'  %}
 <li class="list-group-item"><a href="/ViewComments?postuid={{i.Post_Uid}}">more.</a></li>
 {% endif %}
 
        {% endfor %}
         </li>
       </ul>
+      <div>
       </br>
      {% endfor %}
    </div>
+ </ul>
  </div>
-</div>
 
 
 <script>
 function CheckFileName() {
     var fileName = document.getElementById("fileName").value;
+    var uploadbutton = document.getElementById("uploadpic").value;
+
+        var fileName = document.getElementById("fileName").value;
+
         var idxDot = fileName.lastIndexOf(".") + 1;
         var extFile = fileName.substr(idxDot, fileName.length).toLowerCase();
         if (extFile=="jpg" || extFile=="jpeg" || extFile=="png"){
             //TO DO
-        }else{
+ document.getElementById("uploadpic").disabled = false;
+  }else{
             alert("Only jpg/jpeg and png files are allowed!");
            var element = document.getElementById("fileName");
+ document.getElementById("uploadpic").disabled = true;
+
           element.innerHTML = " ";
         }
 }
-</script>
 </script>
 </body>
 

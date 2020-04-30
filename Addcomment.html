@@ -114,11 +114,22 @@ li{
 
         <li><a href="{{ url }}"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
       </ul>
-      <form action="/SearchProfile" class="form-inline">
-        <input class="form-control mr-sm-2" type="text" name="email" placeholder="Search" aria-label="Search">
+      <form action="/Profile" class="form-inline">
+        <input type="hidden" name='ViewProfile' value="True">
+
+  <input class="form-control mr-sm-2" id="something" list="somethingelse" name="email" placeholder="Enter username to search" autocomplete="off" required>
+<datalist id="somethingelse" >
+  {% for i in usersinsystem %}
+
+  <option style="color:WHITE;" value="{{i}}"></option>
+
+  {% endfor %}
+
+</datalist>
         <input class="form-control mr-sm-2" type="hidden" name="SearchView" value="True">
 
         <button class="btn btn-light mr-sm-9" type="submit">Search</button>
+
 </form>
     </div>
 
@@ -130,7 +141,7 @@ li{
 <div class="container">
 
 <form  method="get" action="\Comment" >
-    <input type="text" name="comment" id="comment" placeholder="Enter Your comment here." required>
+    <textarea name="comment" id="comment" rows="4" cols="100" maxlength="200" minlengt="1" placeholder="Enter Your comment here." required></textarea>
     <input type="hidden" name="postid" id="postid" value="{{postid}}">
 
     <div>

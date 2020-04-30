@@ -50,6 +50,8 @@ class LoginPage(webapp2.RequestHandler):
         result= None
         finalposts=[]
         commentslist=[]
+        usersinsystem=[]
+
 
 
         user = users.get_current_user()
@@ -62,20 +64,51 @@ class LoginPage(webapp2.RequestHandler):
             myuser = myuser_key.get()
             template = JINJA_ENVIRONMENT.get_template('Home.html')
             userdata = ndb.Key('Users', user.email()).get()
-            if userdata!=None:
-                posts=Post.query()
-                postsbyowner=posts.order(-Post.Post_timestamp).filter(Post.Post_owner==users.get_current_user().email()).fetch()
-                finalposts=postsbyowner
-                followinglist=userdata.Users_Following
-                if len(finalposts)!=50:
-                    for i in followinglist:
-                        temposts=posts.order(-Post.Post_timestamp).filter(Post.Post_owner==i).fetch()
-                        for k in temposts:
-                            finalposts.append(k)
 
-                finalposts=finalposts[0:50]
+            if userdata!=None:
+                #posts=Post.query()
+                #postsbyowner=posts.order(-Post.Post_timestamp).filter(Post.Post_owner==users.get_current_user().email()).fetch()
+                #finalposts=postsbyowner
+                followinglist=userdata.Users_Following
+                print('followingslist')
+                followinglist.remove('')
+                print(followinglist)
+                keys=[]
+
+                for i in followinglist:
+                    postsquery=Post.query().filter(Post.Post_owner==i).fetch(keys_only=True)
+                    for il in postsquery:
+                        keys.append(il)
+            #     print('postquery')
+        #         print(postsquery.fetch())
+                postsquery=Post.query().filter(Post.Post_owner==user.email())
+
+                tempo = postsquery.fetch(keys_only=True)
+                print('tempo')
+                print(tempo)
+                if len(tempo)>0:
+                    for ill in tempo:
+                        keys.append(ill)
+
+                temp=list(postsquery.fetch(keys_only=True))
+                print(temp)
+                print('keys')
+                print(keys)
+                finalposts=ndb.get_multi(keys)
+                if postsquery!=None  :
+                #    key=lambda x: x.name
+                    finalposts.sort(key=lambda x: x.Post_timestamp, reverse=True)
+
+                # followinglist=userdata.Users_Following
+                # if len(finalposts)!=50:
+                #     for i in followinglist:
+                #         temposts=posts.order(-Post.Post_timestamp).filter(Post.Post_owner==i).fetch()
+                #         for k in temposts:
+                #             finalposts.append(k)
+
+                    finalposts=finalposts[0:50]
                 for i in finalposts:
-                    cm=Comments().query().filter(Comments.comment_postuid==i.Post_Uid).fetch()
+                    cm=Comments.query().filter(Comments.comment_postuid==i.Post_Uid).fetch()
                     if len(commentslist)<1:
                         commentslist=cm
                     else:
@@ -89,10 +122,8 @@ class LoginPage(webapp2.RequestHandler):
             print(commentslist)
             q=Users.query()
             us =q.fetch()
-            usersinsystem=[]
             for i in us:
               usersinsystem.append(i.Users_Emailaddress)
-            usersinsystem.append('')
             if(user.email() in usersinsystem):
               usersinsystem.remove(user.email())
 
@@ -134,7 +165,8 @@ class LoginPage(webapp2.RequestHandler):
             'myuser' : myuser,
             'upload_url':upload_url,
             'finalposts':finalposts,
-            'comments':commentslist
+            'comments':commentslist,
+            'usersinsystem':usersinsystem
             #'img':img
 
 
@@ -148,14 +180,15 @@ class LoginPage(webapp2.RequestHandler):
             'myuser' : myuser,
             'upload_url':upload_url,
             'finalposts':finalposts,
-            'comments':commentslist
+            'comments':commentslist,
+            'usersinsystem':usersinsystem
 
              #           'img':img
 
 
         }
-        print('finalsposts')
-        print(finalposts)
+        print('usersinsystem')
+        print(usersinsystem)
         self.response.write(template.render(template_values))
 
 class Profile(webapp2.RequestHandler):
@@ -171,30 +204,35 @@ class Profile(webapp2.RequestHandler):
                 posts=Post.query()
                 posts=posts.order(-Post.Post_timestamp).filter(Post.Post_owner==email).fetch()
 
-            if users.get_current_user().email()==email:
-                role='owner'
+                if users.get_current_user().email()==email:
+                    role='owner'
+                else:
+                    role='visitor'
+
+                profiledata=ndb.Key(Users,users.get_current_user().email()).get()
+
+                print('posts')
+                #print(posts)
+                print('profile data')
+                print(profiledata.Users_Following)
+
+                template = JINJA_ENVIRONMENT.get_template('Profile.html')
+                template_values = {
+                    'followers' : followersct,
+                    'following' : followingct,
+                    'posts':posts,
+                    'role':role,
+                    'email':email,
+                    'profiledata':profiledata.Users_Following
+
+
+                }
+                self.response.write(template.render(template_values))
             else:
-                role='visitor'
-
-            profiledata=ndb.Key(Users,users.get_current_user().email()).get()
-
-            print('posts')
-            print(posts)
-            print('profile data')
-            print(profiledata.Users_Following)
-
-            template = JINJA_ENVIRONMENT.get_template('Profile.html')
-            template_values = {
-                'followers' : followersct,
-                'following' : followingct,
-                'posts':posts,
-                'role':role,
-                'email':email,
-                'profiledata':profiledata.Users_Following
+                self.response.headers['Content-Type'] = 'text/html'
+                self.response.write('Oops..!!! Seems like there are no users with this email id.')
 
 
-            }
-            self.response.write(template.render(template_values))
 
 class SearchProfile(webapp2.RequestHandler):
     def get(self):
@@ -216,6 +254,13 @@ class SearchProfile(webapp2.RequestHandler):
 class FollowingFollowerslist(webapp2.RequestHandler):
     def get(self):
         if self.request.get('Followers'):
+            usersinsystem=[]
+            q=Users.query()
+            us =q.fetch()
+            for i in us:
+              usersinsystem.append(i.Users_Emailaddress)
+            if(users.get_current_user().email() in usersinsystem):
+              usersinsystem.remove(users.get_current_user().email())
             email=urlparse(self.request.get('email'))
             followers=ndb.Key(Users,email.path).get()
             result=[]
@@ -226,7 +271,9 @@ class FollowingFollowerslist(webapp2.RequestHandler):
             template = JINJA_ENVIRONMENT.get_template('followersfollowings.html')
             template_values = {
                 'result':result,
-                'email':self.request.get('email')
+                'email':self.request.get('email'),
+                'type':'followers',
+                'usersinsystem':usersinsystem
 
 
             }
@@ -242,7 +289,8 @@ class FollowingFollowerslist(webapp2.RequestHandler):
             template = JINJA_ENVIRONMENT.get_template('followersfollowings.html')
             template_values = {
                 'result':result,
-                'email':self.request.get('email')
+                'email':self.request.get('email'),
+                'type':'followings'
 
 
             }
@@ -261,6 +309,20 @@ class FollowUser(webapp2.RequestHandler):
         followinglist2.append(users.get_current_user().email())
         followinguser.put()
         self.redirect('/')
+
+class UnFollowUser(webapp2.RequestHandler):
+    def get(self):
+    #    followeremail=urlparse(self.request.get('followeremail'))
+        followingemail=urlparse(self.request.get('followingemail'))
+        followeruser=ndb.Key(Users,users.get_current_user().email()).get()
+        followerslist1=followeruser.Users_Following
+        followerslist1.remove(followingemail.path)
+        followeruser.put()
+        followinguser=ndb.Key(Users,followingemail.path).get()
+        followinglist2=followinguser.Users_Followers
+        followinglist2.remove(users.get_current_user().email())
+        followinguser.put()
+        self.redirect('/')        
 
 class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
     def post(self):
@@ -283,15 +345,25 @@ class UploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         newpost.Post_owner=users.get_current_user().email()
 
         newpost.put()
+        time.sleep(1)
         self.redirect('/')
 
 class Comment(webapp2.RequestHandler):
     def get(self):
         if self.request.get('CommentView'):
+            usersinsystem=[]
+            q=Users.query()
+            us =q.fetch()
+            for i in us:
+              usersinsystem.append(i.Users_Emailaddress)
+            if(users.get_current_user().email() in usersinsystem):
+              usersinsystem.remove(users.get_current_user().email())
             template = JINJA_ENVIRONMENT.get_template('Addcomment.html')
             template_values = {
                 'postid':self.request.get('postid'),
-                'email':self.request.get('email')
+                'email':self.request.get('email'),
+                'usersinsystem':usersinsystem,
+                'user':users.get_current_user().email()
 
 
             }
@@ -323,5 +395,5 @@ class ViewComments(webapp2.RequestHandler):
         self.response.write(template.render(template_values))
 
 app = webapp2.WSGIApplication([
-    ('/', LoginPage),('/ViewComments',ViewComments),('/Comment',Comment),('/UploadHandler',UploadHandler),('/FollowingFollowerslist',FollowingFollowerslist),('/FollowUser',FollowUser),('/Profile',Profile),('/SearchProfile',SearchProfile)
+    ('/', LoginPage),('/ViewComments',ViewComments),('/Comment',Comment),('/UploadHandler',UploadHandler),('/FollowingFollowerslist',FollowingFollowerslist),('/FollowUser',FollowUser),('/UnFollowUser',UnFollowUser),('/Profile',Profile),('/SearchProfile',SearchProfile)
 ], debug=True)

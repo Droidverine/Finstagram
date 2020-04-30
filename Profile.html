@@ -101,25 +101,62 @@ text-align:center;
 
             <div class="container">
 
-      <h1 style="text-align: center;background-color: BLACK; color:WHITE;" >
+      <h1 style="text-align: center;background-color: BLACK; color:WHITE;" > You are viewing {{email}}
 </h1></br>
       <center>
-    <a href="/FollowingFollowerslist?Followers=True&email={{email}}">Followers: {{followers-1}}</a> &nbsp;&nbsp;
-    <a href="/FollowingFollowerslist?Followings=True&email={{email}}">Following: {{following-1}}</a></br>
+    <button onclick="location.href='/FollowingFollowerslist?Followers=True&email={{email}}'">Followers: {{followers-1}}</button> &nbsp;&nbsp;
+    <button onclick="location.href='/FollowingFollowerslist?Followings=True&email={{email}}'">Following: {{following-1}}</button> &nbsp;&nbsp;
+  <br>
     {% if role=="visitor" and email not in profiledata %}
+    <br>
     <button onclick="location.href='/FollowUser?followingemail={{email}}'">Follow</button>
-    {% endif %}
+    {% elif role=="visitor" and email in profiledata %}
+    <br>
+        <button onclick="location.href='/UnFollowUser?followingemail={{email}}'">Unfollow</button>
+
+        {% endif %}
+
     </center>
-<ul class="list-group">
-  {% for i in posts %}
-   <b ><font size=+2 ><li class="list-group-item" >
-    <center>
-       <img src="{{i.Post_Blob}}" width="70%"></br>
-       <a>{{i.Post_Caption}}</a>
-       </center>
-        </li>
-      </br>
-     {% endfor %}
+    <br>
+
+
+    <ul class="list-group">
+      {% for i in posts %}
+       <b ><li class="list-group-item" >
+          <a>Post by: {{i.Post_owner}}</a></br>
+          <a>Date: {{i.Post_timestamp }}</a></br>
+          <center>
+
+           <img src="{{i.Post_Blob}}" width="100%"></br>
+         </center>
+         <ul class="list-group">
+           <div style=" border: 3px solid black;padding: 10px;">
+           <a style="color:BLACK;">Caption: {{i.Post_Caption}}</a></br>
+           {% if role == "visitor" and email in profiledata %}
+           <div><button onclick="location.href='/Comment?CommentView=True&postid={{i.Post_Uid}}'">comment</button></div>
+           {% endif %}
+           <a>Comments:</a></br>
+           {% for j in i.Post_comments|reverse %}
+           {% if loop.index < 6 and j.Comment_owner!='None' %}
+
+           <li class="list-group-item"><a style="color:BLACK;text-size:14px;">{{j.Comment_owner}}: {{j.Comment_content}}</a>
+             <a style="float:right;">{{j.comment_time}}</a>
+           </li>
+           {% endif %}
+
+    {% if loop.index==6 and j.Comment_content!='None'  %}
+    <li class="list-group-item"><a href="/ViewComments?postuid={{i.Post_Uid}}">more.</a></li>
+    {% endif %}
+
+           {% endfor %}
+            </li>
+          </ul>
+          </br>
+         {% endfor %}
+
+       </div>
+
+     </ul>
 </div>
 
 

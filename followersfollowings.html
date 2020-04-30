@@ -115,9 +115,23 @@ li{
 
         <li><a href="{{ url }}"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
       </ul>
-      <form action="/SearchProfile" class="form-inline"><input class="form-control mr-sm-2" type="text" name="Search" placeholder="Search" aria-label="Search">
+      <form action="/Profile" class="form-inline">
+        <input type="hidden" name='ViewProfile' value="True">
+
+  <input class="form-control mr-sm-2" id="something" list="somethingelse" name="email" placeholder="Enter username to search" autocomplete="off" required>
+  <datalist id="somethingelse" >
+  {% for i in usersinsystem %}
+
+  <option style="color:WHITE;" value="{{i}}"></option>
+
+  {% endfor %}
+
+  </datalist>
+        <input class="form-control mr-sm-2" type="hidden" name="SearchView" value="True">
+
         <button class="btn btn-light mr-sm-9" type="submit">Search</button>
-</form>
+
+  </form>
     </div>
 
   </div>
@@ -125,9 +139,13 @@ li{
 </nav>
 
 <div class="container">
- <ul>
+  <h1 style="text-align: center;background-color: BLACK; color:WHITE;" > You are viewing {{type}} list of {{email}}
+  </h1>
+ <ul class="list-group">
   {% for i in result %}
-   <li><a href="/Profile?ViewProfile=True&email={{i}}">{{i}}</a></li></br>
+  {% if i!= "" %}
+   <li class="list-group-item"><a href="/Profile?ViewProfile=True&email={{i}}">{{i}}</a></li></br>
+  {% endif %}
   {% endfor %}
  </ul>
 </div>
