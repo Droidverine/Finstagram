@@ -123,14 +123,22 @@ li{
 
 
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="/Profile?ViewProfile=True&email={{user}}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
+        <li><a href="/Profile?ViewProfile=True&email={{users}}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
 
         <li><a href="{{ url }}"><span class="glyphicon glyphicon-log-in"></span> Logout</a></li>
       </ul>
       <form action="/SearchProfile" class="form-inline">
-        <input class="form-control mr-sm-2" type="text" name="email" placeholder="Search" aria-label="Search">
         <input class="form-control mr-sm-2" type="hidden" name="SearchView" value="True">
 
+  <input class="form-control mr-sm-2" id="something" list="somethingelse" name="email" placeholder="Enter username to search" autocomplete="off" required>
+<datalist id="somethingelse" >
+  {% for i in usersinsystem %}
+
+  <option style="color:WHITE;" value="{{i}}"></option>
+
+  {% endfor %}
+
+</datalist>
         <button class="btn btn-light mr-sm-9" type="submit">Search</button>
 
 </form>
@@ -139,13 +147,13 @@ li{
   </div>
 
 </nav>
-<marquee behavior="scroll" direction="left">Welcome {{user}}</marquee></br>
+<marquee behavior="scroll" direction="left">Welcome {{users}}</marquee></br>
 
 <div class="container">
   <ul class="list-group">
     {% for i in comments|reverse %}
-    {% if i.Comment_content != 'None'%}
-    <li class="list-group-item">{{i.Comment_owner}} {{i.Comment_content}} {{i.comment_time}}</li>
+    {% if i.Comment_content != 'None' %}
+    <li class="list-group-item"><a href="/Profile?ViewProfile=True&email={{i.Comment_owner}}"><b>{{i.Comment_owner}} : </b> {{i.Comment_content}} </a><a style="float: right;">{{i.comment_time}}</a></li>
     {% endif %}
     {% endfor %}
   </ul>

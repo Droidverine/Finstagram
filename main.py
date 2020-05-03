@@ -223,7 +223,9 @@ class Profile(webapp2.RequestHandler):
                     'posts':posts,
                     'role':role,
                     'email':email,
-                    'profiledata':profiledata.Users_Following
+                    'profiledata':profiledata.Users_Following,
+                    'users':users.get_current_user().email(),
+                    'url':users.create_logout_url('/')
 
 
                 }
@@ -245,7 +247,9 @@ class SearchProfile(webapp2.RequestHandler):
             template = JINJA_ENVIRONMENT.get_template('Profileslist.html')
             template_values = {
                 'result':userslist,
-                'email':self.request.get('email')
+                'email':self.request.get('email'),
+                'users':users.get_current_user().email(),
+                'url':users.create_logout_url('/')
 
 
             }
@@ -273,7 +277,10 @@ class FollowingFollowerslist(webapp2.RequestHandler):
                 'result':result,
                 'email':self.request.get('email'),
                 'type':'followers',
-                'usersinsystem':usersinsystem
+                'usersinsystem':usersinsystem,
+                'users':users.get_current_user().email(),
+                'url':users.create_logout_url('/')
+
 
 
             }
@@ -290,7 +297,11 @@ class FollowingFollowerslist(webapp2.RequestHandler):
             template_values = {
                 'result':result,
                 'email':self.request.get('email'),
-                'type':'followings'
+                'type':'followings',
+                'users':users.get_current_user().email(),
+                'url':users.create_logout_url('/')
+
+
 
 
             }
@@ -363,7 +374,8 @@ class Comment(webapp2.RequestHandler):
                 'postid':self.request.get('postid'),
                 'email':self.request.get('email'),
                 'usersinsystem':usersinsystem,
-                'user':users.get_current_user().email()
+                'user':users.get_current_user().email(),
+                'url':users.create_logout_url('/')
 
 
             }
@@ -385,11 +397,22 @@ class ViewComments(webapp2.RequestHandler):
     def get(self):
         postuid=self.request.get('postuid')
         template = JINJA_ENVIRONMENT.get_template('commentsview.html')
-
+        usersinsystem=[]
+        q=Users.query()
+        us =q.fetch()
+        for i in us:
+          usersinsystem.append(i.Users_Emailaddress)
+        if(users.get_current_user().email() in usersinsystem):
+          usersinsystem.remove(users.get_current_user().email())    
         post=ndb.Key(Post,postuid).get()
         comments=post.Post_comments
         template_values = {
-            'comments':comments
+            'comments':comments,
+            'users':users.get_current_user().email(),
+            'url':users.create_logout_url('/'),
+            'usersinsystem':usersinsystem
+
+
 
         }
         self.response.write(template.render(template_values))

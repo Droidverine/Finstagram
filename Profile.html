@@ -132,10 +132,15 @@ text-align:center;
          <ul class="list-group">
            <div style=" border: 3px solid black;padding: 10px;">
            <a style="color:BLACK;">Caption: {{i.Post_Caption}}</a></br>
-           {% if role == "visitor" and email in profiledata %}
+           {% if role == "visitor" and email in profiledata%}
            <div><button onclick="location.href='/Comment?CommentView=True&postid={{i.Post_Uid}}'">comment</button></div>
+           {% elif role !="visitor" %}
+                      <div><button onclick="location.href='/Comment?CommentView=True&postid={{i.Post_Uid}}'">comment</button></div>
+
            {% endif %}
+</br>
            <a>Comments:</a></br>
+
            {% for j in i.Post_comments|reverse %}
            {% if loop.index < 6 and j.Comment_owner!='None' %}
 
@@ -153,10 +158,13 @@ text-align:center;
           </ul>
           </br>
          {% endfor %}
+              </ul>
+
+     <footer style="float: right;">Signed in as <b>{{users}}</b></footer>
 
        </div>
 
-     </ul>
+
 </div>
 
 

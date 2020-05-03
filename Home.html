@@ -161,7 +161,7 @@ li{
 
 <table style="width:100%">
   <tr>
-  <td><input  name="image" text="select picture"  type="file" id="fileName" accept=".png, .jpg, .jpeg" onchange="CheckFileName()"/>
+  <td><input  name="image" text="select picture"  type="file" id="fileName" accept=".png, .jpg, .jpeg" onchange="CheckFileName()" required />
   </td>
   <td style="float:right;"><input type="submit" name="uploadpic" id="uploadpic" value="Post"/></td>
 </tr>
@@ -176,7 +176,7 @@ li{
 <ul class="list-group" style=";box-shadow: 0 2px 6px 0 rgba(0,0,0,0.8);">
   {% for i in finalposts %}
    <b ><li class="list-group-item" style="box-shadow: 0 2px 6px 0 rgba(0,0,0,0.8);" >
-      <a>Post by: {{i.Post_owner}}</a></br>
+      <a href="/Profile?ViewProfile=True&email={{i.Post_owner}}">Post by: {{i.Post_owner}}</a></br>
       <a>Date: {{i.Post_timestamp }}</a></br>
       <center>
 
@@ -185,13 +185,13 @@ li{
      <ul class="list-group" style="cursor: pointer;box-shadow: 0 2px 6px 0 rgba(0,0,0,0.8);">
        <div style=" border: 3px solid black;padding: 10px;">
        <a style="color:BLACK;">Caption: {{i.Post_Caption}}</a></br>
-       <div><button onclick="location.href='/Comment?CommentView=True&postid={{i.Post_Uid}}'">comment</button></div>
+       <div><button onclick="location.href='/Comment?CommentView=True&postid={{i.Post_Uid}}'">comment</button></div></br>
        <a>Comments:</a></br>
        {% for j in i.Post_comments|reverse %}
        {% if loop.index < 6
           and j.Comment_owner!='None' %}
 
-       <li class="list-group-item"><a style="color:BLACK;text-size:14px;">{{j.Comment_owner}}: {{j.Comment_content}}</a>
+       <li class="list-group-item"><a href="/Profile?ViewProfile=True&email={{i.Post_owner}}" style="color:BLACK;text-size:14px;">{{j.Comment_owner}}: {{j.Comment_content}}</a>
          <a style="float:right;">{{j.comment_time}}</a>
        </li>
        {% endif %}
